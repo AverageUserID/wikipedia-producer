@@ -1,0 +1,51 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAFKA_BROKER: 127.0.0.1:49092
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pipenv
+
+      - name: Install dependencies
+        run: |
+          pip install pipenv
+          pipenv sync --dev
+
+      - name: Unit tests
+        run: pipenv run pytest -m "not kafka" -v
+
+      - name: Start Redpanda
+        run: docker compose -f compose.test.yaml up -d --wait
+
+      - name: Integration tests
+        run: pipenv run pytest -m kafka -v
+
+      # End-to-end against the live Wikimedia stream. Non-blocking, since an
+      # outage there shouldn't fail the build.
+      - name: Smoke test (live stream, 20 events)
+        continue-on-error: true
+        timeout-minutes: 3
+        env:
+          MAX_EVENTS: "20"
+        run: pipenv run python wikipedia-producer.py
+
+      - name: Redpanda logs on failure
+        if: failure()
+        run: docker compose -f compose.test.yaml logs
+
+      - name: Stop Redpanda
+        if: always()
+        run: docker compose -f compose.test.yaml down -v

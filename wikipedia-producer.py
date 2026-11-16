@@ -18,9 +18,13 @@ import json
 import time
 from requests_sse import EventSource
 
+# Host: Redpanda's external listeners. Inside the compose network, set
+# KAFKA_BROKER=redpanda-0:9092,redpanda-1:9092,redpanda-2:9092
 KAFKA_BROKER = os.getenv("KAFKA_BROKER", "127.0.0.1:19092,127.0.0.1:29092,127.0.0.1:39092")
 WIKIPEDIA_SSE_URL = "https://stream.wikimedia.org/v2/stream/recentchange"
 REPORT_SECONDS = 5
+# Stop after this many events (0 = run forever). Used by CI smoke tests.
+MAX_EVENTS = int(os.getenv("MAX_EVENTS", "0"))
 
 # Wikimedia requires a descriptive User-Agent
 HEADERS = {
@@ -115,6 +119,9 @@ class WikipediaStreamer:
                         except json.JSONDecodeError as e:
                             print(f"Error parsing event: {e}")
                         self.report()
+                        if MAX_EVENTS and self.produced >= MAX_EVENTS:
+                            print(f"Reached MAX_EVENTS={MAX_EVENTS}, stopping")
+                            break
         except KeyboardInterrupt:
             print("\nStopping stream (flushing queued messages)...")
         except Exception as e:

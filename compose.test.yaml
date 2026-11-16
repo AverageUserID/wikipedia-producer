@@ -1,0 +1,20 @@
+# Single-node Redpanda test harness (Kafka API compatible).
+#   docker compose -f compose.test.yaml up -d --wait
+#   KAFKA_BROKER=127.0.0.1:49092 pipenv run pytest
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.7
+    command:
+      - redpanda
+      - start
+      - --mode=dev-container
+      - --smp=1
+      - --kafka-addr=internal://0.0.0.0:9092,external://0.0.0.0:49092
+      - --advertise-kafka-addr=internal://redpanda:9092,external://127.0.0.1:49092
+    ports:
+      - "49092:49092"
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health", "--exit-when-healthy"]
+      interval: 3s
+      timeout: 10s
+      retries: 20
