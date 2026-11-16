@@ -20,5 +20,18 @@ def producer_module(monkeypatch):
 
 
 @pytest.fixture
+def no_broker(monkeypatch):
+    """Build topics locally so WikipediaStreamer() can be constructed without a broker.
+
+    Application.topic() fetches/creates the topic on the broker; unit tests only
+    need the Topic object for its name and serializers.
+    """
+    from quixstreams import Application
+    from quixstreams.models.topics import Topic
+
+    monkeypatch.setattr(Application, "topic", lambda self, name, **kwargs: Topic(name, **kwargs))
+
+
+@pytest.fixture
 def topic_name():
     return f"test-wikipedia-edits-{uuid.uuid4().hex[:8]}"

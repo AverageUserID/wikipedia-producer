@@ -32,7 +32,7 @@ def sample_event(i):
 
 # ---------- unit ----------
 
-def test_publish_serializes_and_counts(producer_module):
+def test_publish_serializes_and_counts(producer_module, no_broker):
     streamer = producer_module.WikipediaStreamer()
     fake = FakeProducer()
 
@@ -45,7 +45,7 @@ def test_publish_serializes_and_counts(producer_module):
     assert json.loads(value)["title"] == "Page 42"
 
 
-def test_on_delivery_counts_success_and_failure(producer_module):
+def test_on_delivery_counts_success_and_failure(producer_module, no_broker):
     streamer = producer_module.WikipediaStreamer()
     streamer.on_delivery(None, FakeMsg())
     streamer.on_delivery("broker down", FakeMsg())
