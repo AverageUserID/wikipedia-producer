@@ -1,4 +1,4 @@
-# Wikipedia Producer
+## Wikipedia Producer
 
 A containerized Kafka producer. This repository helps demonstrate automated tests and builds with GitHub Actions.
 
