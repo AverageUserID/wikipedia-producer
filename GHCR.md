@@ -102,7 +102,7 @@ If Claude Code writes the workflow for you, check that it has the `packages: wri
 
 ## When you would need a personal access token
 
-Only when pushing to a package owned by a different repo or account. That doesn't apply to this assignment.
+Only when pushing to a package owned by a different repo or account. That doesn't apply to this project.
 
 ## Pulling and running the image
 
@@ -119,7 +119,7 @@ The producer reads `KAFKA_BROKER` from the environment, and its default (`127.0.
 
 ## Claude Schema
 
-Instructions for Claude Code when a student asks it to write the build-and-push workflow:
+Instructions for Claude Code when a user asks it to write the build-and-push workflow:
 
 - Write it as `.github/workflows/docker.yml`, separate from `test.yml`.
 - Trigger only on pushed tags of the form `N.N`: `on.push.tags: ['[0-9]+.[0-9]+']`. Don't trigger on branch pushes, pull requests, or `v`-prefixed or three-part tags.
@@ -127,7 +127,7 @@ Instructions for Claude Code when a student asks it to write the build-and-push 
   - Make `test.yml` reusable by adding `workflow_call:` to its `on:` block.
   - In `docker.yml`, add a `test` job with `uses: ./.github/workflows/test.yml`, and give the build job `needs: test`. If the tests fail, nothing is built or pushed.
   - Remove the `push.tags` trigger from `test.yml` so a tag push doesn't run the tests twice. Keep any branch or PR triggers it has.
-- Set permissions at the workflow level: `contents: read` and `packages: write`. Use the built-in `GITHUB_TOKEN`. Don't ask the student to create a personal access token or a repository secret.
+- Set permissions at the workflow level: `contents: read` and `packages: write`. Use the built-in `GITHUB_TOKEN`. Don't ask the user to create a personal access token or a repository secret.
 - Steps in the build job, in order:
   1. `actions/checkout@v6`
   2. `docker/setup-qemu-action@v3`
@@ -138,4 +138,4 @@ Instructions for Claude Code when a student asks it to write the build-and-push 
 - Every release produces two tags: `ghcr.io/USERNAME/wikipedia-producer:N.N` and `ghcr.io/USERNAME/wikipedia-producer:latest`. Don't use `type=semver`.
 - Use action versions that run on Node 24 (`actions/checkout@v6`, `actions/setup-python@v6`), so runs don't show the Node 20 deprecation notice.
 - Confirm that a `Dockerfile` exists at the repo root and that its base image supports both amd64 and arm64 (for example, `python:3.13-slim`).
-- After writing the workflow, tell the student how to release: `git tag 1.2 && git push origin 1.2`.
+- After writing the workflow, tell the user how to release: `git tag 1.2 && git push origin 1.2`.
