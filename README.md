@@ -49,3 +49,25 @@ docker run --rm --name wikipedia-producer \
 ```
 
 Use the brokers' internal listener port (typically `9092`), not the host-mapped ports such as `19092`. `MAX_EVENTS` stops the producer after that many events; omit it (or set `0`) to run indefinitely.
+
+## Unit Tests
+
+Install the dependencies, including pytest:
+
+```bash
+pipenv sync --dev
+```
+
+Run the unit tests, which don't need a broker:
+
+```bash
+pipenv run pytest -m "not kafka" -v
+```
+
+Run the Kafka integration tests against a temporary Redpanda container:
+
+```bash
+docker compose -f compose.test.yaml up -d --wait
+KAFKA_BROKER=127.0.0.1:49092 pipenv run pytest -m kafka -v
+docker compose -f compose.test.yaml down -v
+```
