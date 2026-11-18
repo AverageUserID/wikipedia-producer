@@ -1,8 +1,6 @@
 # Wikipedia Producer
 
-A simple API for data streaming
-
-Hello world
+Streams Wikipedia recent-change events from the Wikimedia SSE feed into the `wikipedia-edits` Kafka topic.
 
 ## Run locally against Redpanda
 
